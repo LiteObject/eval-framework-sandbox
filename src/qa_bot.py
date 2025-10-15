@@ -1,3 +1,5 @@
+"""Lightweight retrieval-augmented QA bot over local documentation."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -10,6 +12,8 @@ from .embeddings import EmbeddingIndex, RetrievedContext
 
 @dataclass
 class Answer:
+    """Structured answer containing the response text and supporting context."""
+
     question: str
     response: str
     context: list[RetrievedContext]
@@ -34,9 +38,13 @@ class QABot:
         self.top_k = top_k or settings.top_k
 
     def retrieve(self, question: str) -> list[RetrievedContext]:
+        """Retrieve the top matching document contexts for a question."""
+
         return self.index.query(question, self.top_k)
 
     def answer(self, question: str) -> Answer:
+        """Generate an answer using the best matching documentation snippet."""
+
         contexts = self.retrieve(question)
         if not contexts:
             return Answer(
@@ -56,6 +64,8 @@ class QABot:
 
     @staticmethod
     def _extract_snippet(document: Document, question: str) -> str:
+        """Heuristically select a snippet that best addresses the question."""
+
         lowered_question = question.lower()
         lines = [line.strip() for line in document.content.splitlines() if line.strip()]
         question_terms = lowered_question.split()
