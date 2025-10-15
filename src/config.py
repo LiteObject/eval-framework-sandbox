@@ -1,3 +1,5 @@
+"""Application configuration helpers for the evaluation sandbox."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

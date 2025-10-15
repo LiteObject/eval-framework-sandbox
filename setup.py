@@ -1,3 +1,5 @@
+"""Package metadata for installing the evaluation sandbox project."""
+
 from pathlib import Path
 from setuptools import setup, find_packages
 
