@@ -1,0 +1,17 @@
+[
+  {
+    "id": "q1",
+    "question": "How do you install the Python requests library?",
+    "doc_id": "python_requests"
+  },
+  {
+    "id": "q2",
+    "question": "What Python statement defines a function?",
+    "doc_id": "python_basics"
+  },
+  {
+    "id": "q3",
+    "question": "What is the rate limit for the demo API?",
+    "doc_id": "api_reference"
+  }
+]

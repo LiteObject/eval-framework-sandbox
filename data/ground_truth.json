@@ -1,0 +1,5 @@
+{
+  "q1": "Install the requests library with pip install requests.",
+  "q2": "Define a function using the def statement, e.g., def name(params):",
+  "q3": "The demo API allows 120 requests per minute."
+}

@@ -201,6 +201,11 @@ cython_debug/
 .cursorignore
 .cursorindexingignore
 
+# Evaluation artifacts
+results/**/*.json
+results/**/*.csv
+results/**/*.yaml
+
 # Marimo
 marimo/_static/
 marimo/_lsp/

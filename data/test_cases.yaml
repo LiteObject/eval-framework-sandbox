@@ -1,0 +1,12 @@
+dataset: sample_requests
+version: "0.1.0"
+questions:
+  - id: q1
+    question: "How do you install the Python requests library?"
+    reference_answer: "Use pip install requests."
+  - id: q2
+    question: "What keyword is used to define a Python function?"
+    reference_answer: "The def keyword is used."
+  - id: q3
+    question: "How many requests per minute are allowed for the demo API?"
+    reference_answer: "120 requests per minute are allowed."
