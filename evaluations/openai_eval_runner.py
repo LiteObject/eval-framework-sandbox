@@ -1,8 +1,20 @@
+"""Integration layer for wrapping OpenAI Evals command-line workflows."""
+
 from __future__ import annotations
 
-from typing import Iterable, Any
+import importlib
+from typing import Any, Iterable
 
 from .base_evaluator import BaseEvaluator, EvaluationInput, EvaluationResult
+
+
+def _load_optional_module(module_name: str) -> Any | None:
+    """Return the imported module or ``None`` when unavailable."""
+
+    try:
+        return importlib.import_module(module_name)
+    except ImportError:  # pragma: no cover - optional dependency
+        return None
 
 
 class OpenAIEvalRunner(BaseEvaluator):
@@ -10,14 +22,8 @@ class OpenAIEvalRunner(BaseEvaluator):
 
     def __init__(self, output_dir=None) -> None:
         super().__init__("openai_evals", output_dir=output_dir)
-        try:
-            import evals  # type: ignore
-        except ImportError:  # pragma: no cover - optional dependency
-            self._available = False
-            self._evals: Any = None
-        else:
-            self._available = True
-            self._evals = evals
+        self._evals: Any | None = _load_optional_module("evals")
+        self._available = self._evals is not None
 
     def evaluate(self, dataset: Iterable[EvaluationInput]) -> EvaluationResult:
         records = list(dataset)

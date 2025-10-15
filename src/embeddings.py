@@ -1,3 +1,5 @@
+"""TF-IDF-based embedding index used for local document retrieval."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -12,6 +14,8 @@ from .document_loader import Document
 
 @dataclass
 class RetrievedContext:
+    """Document result paired with its similarity score."""
+
     document: Document
     score: float
 
@@ -30,6 +34,8 @@ class EmbeddingIndex:
         )
 
     def query(self, text: str, top_k: int = 3) -> list[RetrievedContext]:
+        """Return the top ``top_k`` contexts matching the provided text."""
+
         if not text.strip():
             return []
         query_vec = self.vectorizer.transform([text])

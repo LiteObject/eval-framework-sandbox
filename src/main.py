@@ -1,3 +1,5 @@
+"""Command-line entrypoint for the local documentation QA bot."""
+
 from __future__ import annotations
 
 import argparse
@@ -7,6 +9,8 @@ from .qa_bot import QABot
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse CLI arguments for running the QA bot."""
+
     parser = argparse.ArgumentParser(description="Simple documentation QA bot")
     parser.add_argument("question", help="Question to ask the bot")
     parser.add_argument(
@@ -25,6 +29,8 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
+    """Run the QA bot using command-line arguments and print the answer."""
+
     args = parse_args()
     bot = QABot(documents_path=args.documents, top_k=args.top_k)
     answer = bot.answer(args.question)

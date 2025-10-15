@@ -1,3 +1,5 @@
+"""Utility helpers for preparing datasets used by evaluation runners."""
+
 from __future__ import annotations
 
 import json
@@ -12,6 +14,8 @@ def load_dataset_from_files(
     ground_truth_path: Path,
     predictions: Mapping[str, str] | None = None,
 ) -> Iterable[EvaluationInput]:
+    """Yield ``EvaluationInput`` rows built from question, truth, and prediction files."""
+
     questions = json.loads(questions_path.read_text(encoding="utf-8"))
     ground_truth = json.loads(ground_truth_path.read_text(encoding="utf-8"))
 

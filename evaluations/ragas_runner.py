@@ -1,8 +1,21 @@
+"""Integration with the RAGAS evaluation library."""
+
 from __future__ import annotations
 
-from typing import Iterable, Any
+import importlib
+from typing import Any, Iterable
 
 from .base_evaluator import BaseEvaluator, EvaluationInput, EvaluationResult
+
+
+def _load_optional_attr(module_name: str, attr_name: str) -> Any | None:
+    """Attempt to import ``attr_name`` from ``module_name`` safely."""
+
+    try:
+        module = importlib.import_module(module_name)
+        return getattr(module, attr_name)
+    except (ImportError, AttributeError):  # pragma: no cover - optional dependency
+        return None
 
 
 class RagasRunner(BaseEvaluator):
@@ -10,17 +23,19 @@ class RagasRunner(BaseEvaluator):
 
     def __init__(self, output_dir=None) -> None:
         super().__init__("ragas", output_dir=output_dir)
-        try:
-            from ragas import evaluate  # type: ignore
-            from ragas.metrics import context_precision  # type: ignore
-        except ImportError:  # pragma: no cover - optional dependency
-            self._available = False
-            self._evaluate: Any = None
-            self._context_precision: Any = None
-        else:
+        evaluate_fn = _load_optional_attr("ragas", "evaluate")
+        context_precision_metric = _load_optional_attr(
+            "ragas.metrics", "context_precision"
+        )
+
+        if evaluate_fn and context_precision_metric:
             self._available = True
-            self._evaluate = evaluate
-            self._context_precision = context_precision
+            self._evaluate = evaluate_fn
+            self._context_precision = context_precision_metric
+        else:
+            self._available = False
+            self._evaluate = None
+            self._context_precision = None
 
     def evaluate(self, dataset: Iterable[EvaluationInput]) -> EvaluationResult:
         records = list(dataset)
