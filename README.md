@@ -56,10 +56,86 @@ If `LANGCHAIN_USE_OLLAMA` is `false`, the evaluator falls back to `ChatOpenAI` a
 
 ## Evaluation Frameworks
 
-- **DeepEval**: Unit testing for LLMs
-- **RAGAS**: RAG-specific evaluation metrics
-- **LangChain Evaluation**: Native LangChain eval tools
-- **OpenAI Evals**: OpenAI's evaluation framework
+These integrations are opt-in. Install the additional dependencies with:
+
+```bash
+pip install .[eval]
+```
+
+Each runner expects the dataset built from the JSON files in `data/questions.json`
+and `data/ground_truth.json`. The helper below mirrors what the runners use
+internally:
+
+```python
+from pathlib import Path
+from evaluations.utils import load_dataset_from_files
+
+dataset = load_dataset_from_files(
+     Path("data/questions.json"),
+     Path("data/ground_truth.json"),
+)
+```
+
+### DeepEval
+
+1. Set `DEEPEVAL_API_KEY` in `.env` if you plan to submit results to the hosted
+    DeepEval service (local scoring works without it).
+2. Run the runner programmatically:
+
+    ```python
+    from evaluations.deepeval_runner import DeepEvalRunner
+
+    runner = DeepEvalRunner()
+    result = runner.evaluate(dataset)
+    print(result.score, result.details)
+    ```
+
+    The report is also written to `results/deepeval_result.json`.
+
+### LangChain Evaluation
+
+1. Choose your backend:
+    - Remote OpenAI models: set `OPENAI_API_KEY` and optionally
+      `LANGCHAIN_OPENAI_MODEL` (defaults to `gpt-3.5-turbo`).
+    - Local Ollama: set `LANGCHAIN_USE_OLLAMA=true`, `OLLAMA_MODEL`, and
+      optionally `OLLAMA_BASE_URL`; no OpenAI key required.
+2. Invoke the runner:
+
+    ```python
+    from evaluations.langchain_eval_runner import LangChainEvalRunner
+
+    runner = LangChainEvalRunner()
+    result = runner.evaluate(dataset)
+    print(result.score, result.details)
+    ```
+
+    LangChain will call the configured chat model to grade responses and store
+    the output at `results/langchain_result.json`.
+
+### RAGAS
+
+1. Install the `ragas` extras (already included in `.[eval]`). Some metrics call
+    an LLM; set `OPENAI_API_KEY` or configure RagAS to use a local model before
+    running.
+2. Evaluate the dataset:
+
+    ```python
+    from evaluations.ragas_runner import RagasRunner
+
+    runner = RagasRunner()
+    result = runner.evaluate(dataset)
+    print(result.score, result.details)
+    ```
+
+    The raw metric results are saved to `results/ragas_result.json`.
+
+### OpenAI Evals
+
+This repository only prepares the dataset and relies on OpenAI's CLI for the
+actual evaluation. Ensure `evals` is installed and `OPENAI_API_KEY` is set, then
+use `evaluations/openai_eval_runner.py` to export a dataset and follow the
+[OpenAI Evals documentation](https://github.com/openai/evals) to launch the
+experiments with `oaieval`.
 
 ## Project Structure
 
