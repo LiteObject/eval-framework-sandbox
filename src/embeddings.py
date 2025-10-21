@@ -1,4 +1,7 @@
-"""TF-IDF-based embedding index used for local document retrieval."""
+"""
+TF-IDF (Term Frequency-Inverse Document Frequency) based
+embedding index used for local document retrieval.
+"""
 
 from __future__ import annotations
 
@@ -21,7 +24,7 @@ class RetrievedContext:
 
 
 class EmbeddingIndex:
-    """Simple TF-IDF based retrieval index."""
+    """Simple TF-IDF (Term Frequency-Inverse Document Frequency) based retrieval index."""
 
     def __init__(self, documents: Iterable[Document]) -> None:
         self.documents = list(documents)

@@ -1,4 +1,9 @@
-"""Lightweight retrieval-augmented QA bot over local documentation."""
+"""
+The QABot class is designed to answer questions by first finding
+relevant information within a local set of Markdown documents and
+then generating a response based on what it finds. This is a common
+pattern known as Retrieval-Augmented Generation (RAG).
+"""
 
 from __future__ import annotations
 
@@ -34,11 +39,15 @@ class QABot:
         if not documents:
             raise ValueError(f"No Markdown documents found in {docs_path}")
 
+        # This is a crucial step where the content of the documents is converted
+        # into numerical representations (embeddings) that capture their semantic
+        # meaning. This index allows for efficient searching based on the meaning
+        # of the question, not just keywords.
         self.index = EmbeddingIndex(documents)
         self.top_k = top_k or settings.top_k
 
     def retrieve(self, question: str) -> list[RetrievedContext]:
-        """Retrieve the top matching document contexts for a question."""
+        """Retrieve the top matching (top_k) document contexts for a question."""
 
         return self.index.query(question, self.top_k)
 
