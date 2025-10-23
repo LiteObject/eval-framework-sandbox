@@ -6,6 +6,22 @@ A simple Q&A bot for technical documentation designed to test and compare differ
 
 This project serves as a testbed for comparing how different evaluation frameworks assess the same RAG (Retrieval-Augmented Generation) system.
 
+## Key Concepts
+
+This project evaluates a RAG (Retrieval-Augmented Generation) system. Here are a few key concepts to help you understand the components:
+
+-   **RAG (Retrieval-Augmented Generation)**: This is a technique where a large language model's knowledge is supplemented with information retrieved from other sources (in this case, our local documents). The process has two main steps:
+    1.  **Retrieval**: A search algorithm (like TF-IDF) finds relevant documents based on the user's query.
+    2.  **Generation**: A language model takes the retrieved documents and the original query to generate a comprehensive answer.
+
+-   **Ground Truth**: In the context of evaluation, "ground truth" refers to the ideal or perfect answer to a given question. We use the ground truth dataset (`data/ground_truth.json`) as a benchmark to measure how accurate and relevant the Q&A bot's answers are.
+
+-   **TF-IDF (Term Frequency-Inverse Document Frequency)**: This is the retrieval algorithm used by the Q&A bot to find relevant documents. It works by assigning a score to each word in a document based on two factors:
+    -   **Term Frequency (TF)**: How often a word appears in a specific document.
+    -   **Inverse Document Frequency (IDF)**: How rare or common the word is across all documents.
+    
+    This allows the system to prioritize words that are important to a specific document over common words that appear everywhere (like "the" or "and").
+
 ## Quick Start
 
 1. Clone the repository
