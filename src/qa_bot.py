@@ -6,7 +6,7 @@ and generating contextual responses with source attribution.
 
 Key Features:
 - Semantic search using embeddings (not keyword-based)
-- Intelligent snippet extraction (prioritizes installation hints)
+- Domain-agnostic snippet extraction (selects lines by token overlap)
 - Source attribution in responses
 - Configurable retrieval depth (top_k parameter)
 

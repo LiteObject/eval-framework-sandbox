@@ -22,6 +22,8 @@ This project evaluates a RAG (Retrieval-Augmented Generation) system. Here are a
     
     This allows the system to prioritize words that are important to a specific document over common words that appear everywhere (like "the" or "and").
 
+-   **Snippet Selection**: After TF-IDF retrieves the most relevant document, the QA bot selects the single line within that document that best matches the user's question. This is done using a simple, domain-agnostic heuristic: it counts how many words from the question appear in each line and returns the line with the highest overlap. No hardcoded patterns (like "pip install") are used, making the bot applicable to any domain—medical, legal, technical, etc.
+
 ## Quick Start
 
 1. Clone the repository
