@@ -85,38 +85,26 @@ class QABot:
 
     @staticmethod
     def _extract_snippet(document: Document, question: str) -> str:
-        """Heuristically select a snippet that best addresses the question."""
+        """Select the single line that best matches the user's question."""
 
-        lowered_question = question.lower()
         lines = [line.strip() for line in document.content.splitlines() if line.strip()]
-        question_terms = lowered_question.split()
+        if not lines:
+            return ""
 
-        install_candidate: str | None = None
-        token_candidate: str | None = None
+        # Prefer non-heading lines; fall back to any content if necessary.
+        candidates = [line for line in lines if not line.startswith("#")]
+        if not candidates:
+            candidates = lines
 
-        # Prefer lines that contain installation hints or share tokens
-        for line in lines:
-            lower_line = line.lower()
-            if lower_line.startswith("#"):
-                continue
-            if "pip install" in lower_line:
-                return line
-            if install_candidate is None and "install" in lower_line:
-                install_candidate = line
-            tokens = set(lower_line.split())
-            if token_candidate is None and (
-                any(token in lowered_question for token in tokens)
-                or any(term in lower_line for term in question_terms)
-            ):
-                token_candidate = line
+        question_terms = set(question.lower().split())
+        best_line = candidates[0]
+        best_score = -1
 
-        if install_candidate is not None:
-            return install_candidate
-        if token_candidate is not None:
-            return token_candidate
+        for line in candidates:
+            line_terms = set(line.lower().split())
+            overlap = len(question_terms & line_terms)
+            if overlap > best_score:
+                best_score = overlap
+                best_line = line
 
-        # Fallback to the first sentence/paragraph
-        for line in lines:
-            if not line.strip().startswith("#"):
-                return line
-        return lines[0] if lines else ""
+        return best_line
