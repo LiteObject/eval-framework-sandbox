@@ -1,8 +1,20 @@
-"""
-The QABot class is designed to answer questions by first finding
-relevant information within a local set of Markdown documents and
-then generating a response based on what it finds. This is a common
-pattern known as Retrieval-Augmented Generation (RAG).
+"""Retrieval-Augmented Generation (RAG) bot for local Markdown documentation.
+
+This module provides a QA bot that answers questions by converting local
+Markdown documents into semantic embeddings, retrieving relevant snippets,
+and generating contextual responses with source attribution.
+
+Key Features:
+- Semantic search using embeddings (not keyword-based)
+- Intelligent snippet extraction (prioritizes installation hints)
+- Source attribution in responses
+- Configurable retrieval depth (top_k parameter)
+
+Example:
+    >>> bot = QABot(documents_path=Path("data/documents/sample_docs"))
+    >>> answer = bot.answer("How do I install requests?")
+    >>> print(answer.response)
+    According to python_requests, To install the library, use `pip install requests`.
 """
 
 from __future__ import annotations

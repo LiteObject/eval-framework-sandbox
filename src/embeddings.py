@@ -31,6 +31,7 @@ class EmbeddingIndex:
         if not self.documents:
             raise ValueError("No documents supplied for indexing")
 
+        # stop_words="english" -> Ignores common English words (the, a, is, etc.)
         self.vectorizer = TfidfVectorizer(stop_words="english")
         self.matrix = self.vectorizer.fit_transform(
             doc.content for doc in self.documents
@@ -42,6 +43,10 @@ class EmbeddingIndex:
         if not text.strip():
             return []
         query_vec = self.vectorizer.transform([text])
+
+        # cosine_similarity is a math function that measures how similar two things are
+        # by comparing them as vectors. It returns a score from 0 to 1:
+        # 1.0 = Identical (perfect match), 0.5 = Somewhat similar, 0.0 = Completely different
         similarity_scores = cosine_similarity(query_vec, self.matrix)[0]
         rankings = np.argsort(similarity_scores)[::-1][:top_k]
         return [
