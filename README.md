@@ -70,26 +70,71 @@ The core QA bot already runs fully offline using TF-IDF retrieval. If you also w
 
 If `LANGCHAIN_USE_OLLAMA` is `false`, the evaluator falls back to `ChatOpenAI` and expects a valid `OPENAI_API_KEY` plus `LANGCHAIN_OPENAI_MODEL` (defaults to `gpt-3.5-turbo`).
 
+## Understanding the Evaluation Process
+
+The evaluation workflow follows four distinct steps:
+
+### Step 1: Initialize Your QA Bot
+```python
+from src.qa_bot import QABot
+
+bot = QABot(documents_path="data/documents/sample_docs")
+```
+Load your bot with the technical documentation it will search through.
+
+### Step 2: Generate Predictions
+```python
+import json
+from pathlib import Path
+
+questions = json.loads(Path("data/test_questions.json").read_text())
+predictions = {}
+
+for item in questions:
+    answer = bot.answer(item["question"])
+    predictions[item["id"]] = answer.response
+```
+Ask your bot each test question and collect its answers as **predictions**.
+
+### Step 3: Build the Evaluation Dataset
+```python
+from evaluations.utils import load_dataset_from_files
+
+dataset = load_dataset_from_files(
+    questions_path=Path("data/test_questions.json"),
+    ground_truth_path=Path("data/ground_truth.json"),
+    predictions=predictions,  # Your bot's answers
+)
+```
+This pairs each question with:
+- **Prediction**: Your bot's answer
+- **Ground Truth**: The expected correct answer
+
+### Step 4: Score with an Evaluation Framework
+```python
+from evaluations.langchain_eval_runner import LangChainEvalRunner
+
+runner = LangChainEvalRunner()
+result = runner.evaluate(dataset)
+print(f"Score: {result.score}")
+```
+The framework compares your predictions against ground truth and returns a score (0-1 scale).
+
+### Visual Flow
+```
+Sample Docs → QA Bot → Predictions
+                         ↓
+Test Questions + Ground Truth + Predictions → Evaluator → Score & Details
+```
+
+---
+
 ## Evaluation Frameworks
 
 These integrations are opt-in. Install the additional dependencies with:
 
 ```bash
 pip install .[eval]
-```
-
-Each runner expects the dataset built from the JSON files in `data/questions.json`
-and `data/ground_truth.json`. The helper below mirrors what the runners use
-internally:
-
-```python
-from pathlib import Path
-from evaluations.utils import load_dataset_from_files
-
-dataset = load_dataset_from_files(
-     Path("data/questions.json"),
-     Path("data/ground_truth.json"),
-)
 ```
 
 ### DeepEval
