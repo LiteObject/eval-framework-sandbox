@@ -11,7 +11,7 @@ This project serves as a testbed for comparing how different evaluation framewor
 This project evaluates a RAG (Retrieval-Augmented Generation) system. Here are a few key concepts to help you understand the components:
 
 -   **RAG (Retrieval-Augmented Generation)**: This is a technique where a large language model's knowledge is supplemented with information retrieved from other sources (in this case, our local documents). The process has two main steps:
-    1.  **Retrieval**: A search algorithm (like TF-IDF) finds relevant documents based on the user's query.
+    1.  **Retrieval**: A search algorithm (like TF-IDF) findrelevant documents based on the user's query.
     2.  **Generation**: A language model takes the retrieved documents and the original query to generate a comprehensive answer.
 
 -   **Ground Truth**: In the context of evaluation, "ground truth" refers to the ideal or perfect answer to a given question. We use the ground truth dataset (`data/ground_truth.json`) as a benchmark to measure how accurate and relevant the Q&A bot's answers are.
