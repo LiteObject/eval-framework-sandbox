@@ -6,6 +6,10 @@ A simple Q&A bot for technical documentation designed to test and compare differ
 
 This project serves as a testbed for comparing how different evaluation frameworks assess the same RAG (Retrieval-Augmented Generation) system.
 
+### What is an evaluation framework?
+
+An evaluation framework is a tool or library that systematically measures how well an AI system performs. In this sandbox, frameworks like DeepEval, LangChain Evaluation, and RAGAS take each question, the bot's answer, and the ground-truth answer, then compute metrics such as correctness, relevance, and hallucination rate. This lets you compare models, prompts, and retrieval strategies using repeatable, objective scores instead of ad-hoc manual judgment.
+
 ## Key Concepts
 
 This project evaluates a RAG (Retrieval-Augmented Generation) system. Here are a few key concepts to help you understand the components:
