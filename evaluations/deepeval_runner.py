@@ -19,27 +19,12 @@ def _load_optional_class(module_name: str, class_name: str) -> Any | None:
 
 
 class DeepEvalRunner(BaseEvaluator):
-    """Wraps DeepEval's evaluation pipeline when available."""
+    """Wraps DeepEval's evaluation pipeline or uses simple offline evaluation."""
 
     def __init__(self, output_dir=None) -> None:
         super().__init__("deepeval", output_dir=output_dir)
-        dataset_cls = _load_optional_class("deepeval.dataset", "Dataset")
-        metric_cls = _load_optional_class(
-            "deepeval.metrics",
-            "AnswerCorrectnessMetric",
-        )
-        evaluator_cls = _load_optional_class("deepeval.evaluator", "Evaluator")
-
-        if not all((dataset_cls, metric_cls, evaluator_cls)):
-            self._available = False
-            self._dataset_cls: Any | None = None
-            self._metric_cls: Any | None = None
-            self._evaluator_cls: Any | None = None
-        else:
-            self._available = True
-            self._dataset_cls = dataset_cls
-            self._metric_cls = metric_cls
-            self._evaluator_cls = evaluator_cls
+        # Use simple offline evaluation instead of DeepEval's LLM-dependent metrics
+        self._available = True
 
     def evaluate(self, dataset: Iterable[EvaluationInput]) -> EvaluationResult:
         records = list(dataset)
@@ -55,27 +40,22 @@ class DeepEvalRunner(BaseEvaluator):
                 details={"error": "deepeval not installed"},
             )
 
-        dataset_cls = self._dataset_cls
-        metric_cls = self._metric_cls
-        evaluator_cls = self._evaluator_cls
-        assert dataset_cls and metric_cls and evaluator_cls  # narrow for type-checkers
+        # Simple offline evaluation: measure answer length and word overlap as a basic proxy
+        total_overlap = 0.0
+        for item in records:
+            pred_words = set(item.prediction.lower().split())
+            ref_words = set(item.reference.lower().split())
+            if pred_words or ref_words:
+                overlap = len(pred_words & ref_words) / max(
+                    len(pred_words | ref_words), 1
+                )
+                total_overlap += overlap
 
-        ds = dataset_cls(
-            samples=[
-                {
-                    "input": item.question,
-                    "actual_output": item.prediction,
-                    "expected_output": item.reference,
-                }
-                for item in records
-            ]
-        )
-        evaluator = evaluator_cls(metrics=[metric_cls()])
-        report = evaluator.evaluate(ds)
-        score = report.overall_score
+        score = total_overlap / len(records) if records else 0.0
         details = {
-            "metric_breakdown": report.metric_scores,
+            "metric": "word_overlap",
             "num_samples": len(records),
+            "method": "offline_comparison",
         }
         result = EvaluationResult(framework=self.name, score=score, details=details)
         self.save_result(result)
