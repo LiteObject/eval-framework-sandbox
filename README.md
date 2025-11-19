@@ -127,10 +127,19 @@ print(f"Score: {result.score}")
 The framework compares your predictions against ground truth and returns a score (0-1 scale).
 
 ### Visual Flow
+
 ```
-Sample Docs → QA Bot → Predictions
-                         ↓
-Test Questions + Ground Truth + Predictions → Evaluator → Score & Details
+Step 1: Initialize
+    Sample Docs → QA Bot
+
+Step 2: Generate Predictions  
+    Test Questions → QA Bot → Predictions
+
+Step 3: Build Dataset
+    Questions + Predictions + Ground Truth → Evaluation Dataset
+
+Step 4: Evaluate
+    Evaluation Dataset → Framework (LangChain/DeepEval/RAGAS/Embedding) → Score & Details
 ```
 
 ---
