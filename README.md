@@ -128,27 +128,37 @@ The framework compares your predictions against ground truth and returns a score
 
 ### Visual Flow
 
+### Visual Flow
+
 ```mermaid
 flowchart TD
-    subgraph S1[Step 1 Initialize]
-        D[Sample Docs] --> Q[QA Bot]
-    end
-
-    subgraph S2[Step 2 Generate Predictions]
-        T[Test Questions] --> Q
-        Q --> P[Predictions]
-    end
-
-    subgraph S3[Step 3 Build Dataset]
-        T2[Test Questions] --> EDS[Evaluation Dataset]
-        P2[Predictions] --> EDS
-        G[Ground Truth] --> EDS
-    end
-
-    subgraph S4[Step 4 Evaluate]
-        EDS --> F["Frameworks\n(LangChain / DeepEval / RAGAS / Embedding)"]
-        F --> R[Scores & Details]
-    end
+    %% Step 1: Initialize
+    D[Sample Docs] --> Q[QA Bot]
+    
+    %% Step 2: Generate Predictions
+    T[Test Questions] --> Q
+    Q --> P[Predictions]
+    
+    %% Step 3: Build Dataset
+    T --> EDS[Evaluation Dataset]
+    P --> EDS
+    G[Ground Truth] --> EDS
+    
+    %% Step 4: Evaluate
+    EDS --> LC[LangChain<br/>Evaluator]
+    EDS --> DE[DeepEval<br/>Evaluator]
+    EDS --> RG[RAGAS<br/>Evaluator]
+    EDS --> EM[Embedding<br/>Evaluator]
+    
+    LC --> S1[LLM Score]
+    DE --> S2[Word Overlap Score]
+    RG --> S3[Token Overlap Score]
+    EM --> S4[Cosine Similarity Score]
+    
+    S1 --> COMP[Score Comparison<br/>& Bar Chart]
+    S2 --> COMP
+    S3 --> COMP
+    S4 --> COMP
 ```
 
 ---
