@@ -143,21 +143,75 @@ These integrations are opt-in. Install the additional dependencies with:
 pip install .[eval]
 ```
 
-### DeepEval
+### How Each Framework Evaluates
 
-1. Set `DEEPEVAL_API_KEY` in `.env` if you plan to submit results to the hosted
-    DeepEval service (local scoring works without it).
-2. Run the runner programmatically:
+Each framework uses a different method to score your bot's answers:
 
-    ```python
-    from evaluations.deepeval_runner import DeepEvalRunner
+| Framework   | Evaluation Method           | Requires LLM? | Understands Meaning? | Speed    |
+|-------------|----------------------------|---------------|----------------------|----------|
+| **LangChain**   | LLM-based grading          | ✅ Yes        | ✅ Yes               | Slower   |
+| **DeepEval**    | Word overlap (Jaccard)     | ❌ No         | ❌ No                | Fast     |
+| **RAGAS**       | Token overlap (Jaccard)    | ❌ No         | ❌ No                | Fast     |
 
-    runner = DeepEvalRunner()
-    result = runner.evaluate(dataset)
-    print(result.score, result.details)
-    ```
+#### LangChain: LLM-Based Grading
+Uses a **language model** (OpenAI GPT or local Ollama) to judge answer quality by comparing the question, bot prediction, and ground truth. The LLM acts as an intelligent grader that understands semantic similarity and paraphrasing.
 
-    The report is also written to `results/deepeval_result.json`.
+**Example:** If the bot says "utilize pip" and ground truth says "use pip", LangChain recognizes these as equivalent.
+
+#### DeepEval: Word-Overlap Scoring
+Calculates **Jaccard similarity** between words in the prediction and ground truth:
+```
+score = |words in common| / |total unique words|
+```
+**Example:** 
+- Prediction: "Install the requests library"
+- Ground truth: "Use pip install requests"
+- Score: 2/6 ≈ 0.333 (only "install" and "requests" match)
+
+#### RAGAS: Token-Overlap Scoring
+Similar to DeepEval but operates at the **token level**. Also uses Jaccard similarity for word matching.
+
+#### Why Scores Differ
+When running the comparison notebook, you might see:
+```
+LangChain: 0.667
+DeepEval:  0.333
+RAGAS:     0.250
+```
+This happens because **LangChain understands semantics** (recognizes synonyms, paraphrases) while **DeepEval/RAGAS only count exact word matches**. The bar chart in the notebook helps visualize these differences.
+
+**Recommendation:**
+- Use **LangChain** for semantic accuracy evaluation (more human-like judgment)
+- Use **DeepEval/RAGAS** for quick keyword coverage checks and sanity testing
+
+### LLM as a Judge
+
+**LangChain Evaluation** implements the **"LLM as a Judge"** pattern—a popular evaluation approach where a language model grades another AI system's outputs.
+
+#### How It Works
+1. The judge LLM receives:
+   - The original question
+   - Your bot's answer (prediction)
+   - The correct answer (ground truth)
+2. The judge evaluates whether the prediction is accurate, relevant, and semantically similar to the ground truth
+3. Returns a score (0.0 = poor, 1.0 = perfect)
+
+#### Why Use LLM as a Judge?
+- **Semantic understanding**: Recognizes that "utilize pip" and "use pip" mean the same thing
+- **Nuanced judgment**: Can evaluate tone, completeness, and style—not just word matches
+- **Flexible**: Works across domains without hardcoded rules
+
+#### Tradeoffs
+- **Requires LLM access**: Either OpenAI API key (costs money) or local Ollama (free but slower)
+- **Non-deterministic**: Same input may get slightly different scores on repeated runs
+- **Judge biases**: The evaluator inherits biases from the judge LLM itself
+
+**Contrast with Rule-Based Methods:**
+- DeepEval and RAGAS use deterministic formulas (Jaccard similarity)
+- Faster and cheaper, but miss semantic nuances
+- Best for quick sanity checks rather than comprehensive evaluation
+
+---
 
 ### LangChain Evaluation
 
@@ -179,22 +233,37 @@ pip install .[eval]
     LangChain will call the configured chat model to grade responses and store
     the output at `results/langchain_result.json`.
 
+### DeepEval
+
+DeepEval now uses **offline word-overlap scoring** (Jaccard similarity) and requires no API keys or LLM calls.
+
+Run the runner programmatically:
+
+```python
+from evaluations.deepeval_runner import DeepEvalRunner
+
+runner = DeepEvalRunner()
+result = runner.evaluate(dataset)
+print(result.score, result.details)
+```
+
+The report is written to `results/deepeval_result.json`.
+
 ### RAGAS
 
-1. Install the `ragas` extras (already included in `.[eval]`). Some metrics call
-    an LLM; set `OPENAI_API_KEY` or configure RagAS to use a local model before
-    running.
-2. Evaluate the dataset:
+RAGAS now uses **offline token-overlap scoring** (Jaccard similarity) and requires no API keys or LLM calls.
 
-    ```python
-    from evaluations.ragas_runner import RagasRunner
+Evaluate the dataset:
 
-    runner = RagasRunner()
-    result = runner.evaluate(dataset)
-    print(result.score, result.details)
-    ```
+```python
+from evaluations.ragas_runner import RagasRunner
 
-    The raw metric results are saved to `results/ragas_result.json`.
+runner = RagasRunner()
+result = runner.evaluate(dataset)
+print(result.score, result.details)
+```
+
+The raw metric results are saved to `results/ragas_result.json`.
 
 ### OpenAI Evals
 
