@@ -128,18 +128,27 @@ The framework compares your predictions against ground truth and returns a score
 
 ### Visual Flow
 
-```
-Step 1: Initialize
-    Sample Docs → QA Bot
+```mermaid
+flowchart TD
+    subgraph S1[Step 1 Initialize]
+        D[Sample Docs] --> Q[QA Bot]
+    end
 
-Step 2: Generate Predictions  
-    Test Questions → QA Bot → Predictions
+    subgraph S2[Step 2 Generate Predictions]
+        T[Test Questions] --> Q
+        Q --> P[Predictions]
+    end
 
-Step 3: Build Dataset
-    Questions + Predictions + Ground Truth → Evaluation Dataset
+    subgraph S3[Step 3 Build Dataset]
+        T2[Test Questions] --> EDS[Evaluation Dataset]
+        P2[Predictions] --> EDS
+        G[Ground Truth] --> EDS
+    end
 
-Step 4: Evaluate
-    Evaluation Dataset → Framework (LangChain/DeepEval/RAGAS/Embedding) → Score & Details
+    subgraph S4[Step 4 Evaluate]
+        EDS --> F["Frameworks\n(LangChain / DeepEval / RAGAS / Embedding)"]
+        F --> R[Scores & Details]
+    end
 ```
 
 ---
