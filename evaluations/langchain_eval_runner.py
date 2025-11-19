@@ -5,9 +5,13 @@ from __future__ import annotations
 import importlib
 from typing import Any, Callable, Iterable, Optional, cast
 
+from dotenv import load_dotenv
+
 from src.config import settings
 
 from .base_evaluator import BaseEvaluator, EvaluationInput, EvaluationResult
+
+load_dotenv()
 
 
 def _load_optional_class(module_name: str, class_name: str) -> Any | None:
@@ -47,6 +51,19 @@ class LangChainEvalRunner(BaseEvaluator):
 
         if self._llm_builder is None:
             self._configure_openai_backend()
+
+        # Log model configuration
+        if self._llm_provider == "ollama":
+            model = settings.ollama_model or "unknown"
+            base_url = settings.ollama_base_url or "http://localhost:11434"
+            print(
+                f"[LangChain] Using Ollama backend: model={model}, base_url={base_url}"
+            )
+        elif self._llm_provider == "openai":
+            model = settings.langchain_openai_model or "unknown"
+            print(f"[LangChain] Using OpenAI backend: model={model}")
+        else:
+            print("[LangChain] Backend not configured")
 
     def _configure_ollama_backend(self) -> None:
         chat_ollama_cls = _load_optional_class(

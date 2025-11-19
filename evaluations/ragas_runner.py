@@ -6,7 +6,11 @@ import importlib
 import os
 from typing import Any, Iterable
 
+from dotenv import load_dotenv
+
 from .base_evaluator import BaseEvaluator, EvaluationInput, EvaluationResult
+
+load_dotenv()
 
 
 def _load_optional_attr(module_name: str, attr_name: str) -> Any | None:
@@ -43,6 +47,18 @@ class RagasRunner(BaseEvaluator):
         # RAGAS is installed but we use a simple offline method instead of its LLM-dependent metrics
         self._available = True
         self._llm = _get_llm_for_ragas()
+
+        # Log configuration
+        if os.getenv("LANGCHAIN_USE_OLLAMA", "").lower() == "true":
+            model = os.getenv("OLLAMA_MODEL", "unknown")
+            base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+            print(
+                f"[RAGAS] Using offline token-overlap metric (Ollama config: model={model}, base_url={base_url})"
+            )
+        else:
+            print(
+                "[RAGAS] Using offline token-overlap metric (no LLM backend configured)"
+            )
 
     def evaluate(self, dataset: Iterable[EvaluationInput]) -> EvaluationResult:
         records = list(dataset)

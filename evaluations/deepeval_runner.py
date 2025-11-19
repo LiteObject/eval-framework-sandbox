@@ -3,9 +3,14 @@
 from __future__ import annotations
 
 import importlib
+import os
 from typing import Any, Iterable
 
+from dotenv import load_dotenv
+
 from .base_evaluator import BaseEvaluator, EvaluationInput, EvaluationResult
+
+load_dotenv()
 
 
 def _load_optional_class(module_name: str, class_name: str) -> Any | None:
@@ -25,6 +30,10 @@ class DeepEvalRunner(BaseEvaluator):
         super().__init__("deepeval", output_dir=output_dir)
         # Use simple offline evaluation instead of DeepEval's LLM-dependent metrics
         self._available = True
+
+        # Log configuration
+        model = os.getenv("OLLAMA_MODEL", "unknown")
+        print(f"[DeepEval] Using offline word-overlap metric (model config: {model})")
 
     def evaluate(self, dataset: Iterable[EvaluationInput]) -> EvaluationResult:
         records = list(dataset)
